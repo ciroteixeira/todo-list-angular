@@ -1,0 +1,37 @@
+name: Angular CI with Node
+
+# Dispara a pipeline a cada push ou pull request na branch main
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Passo 1: Baixa o código do repositório
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # Passo 2: Instala e configura o Node.js v20 (compatível com Angular moderno)
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm' # Guarda o cache do node_modules para builds mais rápidos
+
+    # Passo 3: Instala as dependências do projeto de forma limpa e segura
+    - name: Install dependencies
+      run: npm ci
+
+    # Passo 4: Compila a aplicação Angular para Produção (Gera a pasta dist/)
+    - name: Build Angular Application
+      run: npm run build --configuration=production
+
+    # Passo 5: (Preparação para a Fase 2/4) - Simula o Build da imagem Docker
+    - name: Test Docker Build
+      run: |
+        docker build -t todo-frontend-test .
